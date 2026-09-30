@@ -1,0 +1,92 @@
+[project]
+name = "rag-platform"
+version = "0.1.0"
+description = "Multimodal RAG + authentication backend (FastAPI). Multi-agent orchestration lives in a separate project."
+requires-python = "==3.12.*"
+readme = "README.md"
+
+# Exact-pinned (==) on purpose: this is an AI platform where a silent minor
+# bump in fastapi/pydantic/sqlalchemy/python-jose can change validation
+# behavior, JWT handling, or ORM semantics in ways that are easy to miss in
+# review. Exact pins force every version change through an explicit,
+# reviewable diff instead of happening implicitly on a fresh `uv sync`.
+dependencies = [
+    "fastapi==0.115.0",
+    "uvicorn[standard]==0.30.6",
+    "pydantic==2.9.2",
+    "pydantic-settings==2.5.2",
+    "sqlalchemy[asyncio]==2.0.35",
+    "asyncpg==0.29.0",
+    "alembic==1.13.2",
+    "passlib[bcrypt]==1.7.4",
+    "python-jose[cryptography]==3.3.0",
+    "python-multipart==0.0.9",
+    "redis==5.0.8",
+    "slowapi==0.1.9",
+    "structlog==24.4.0",
+    "python-dotenv==1.0.1",
+    "tenacity==9.0.0",
+    "email-validator==2.2.0",
+    "bcrypt==4.0.1",
+    "pgvector==0.3.6",
+    "docling==2.87.0",
+    "sentence-transformers==3.3.1",
+    "aiofiles==24.1.0",
+    "huggingface-hub==0.36.2",
+    "docling-core==2.74.0",
+    "onnxruntime==1.20.1",
+    "opencv-python>=4.10.0.84",
+    "numpy<2",
+    "httpx==0.27.2",
+]
+
+# PEP 735 dependency groups — replaces the deprecated [tool.uv.dev-dependencies].
+[dependency-groups]
+dev = [
+    "pytest==8.3.3",
+    "pytest-asyncio==0.24.0",
+    "httpx==0.27.2",
+    "ruff==0.7.0",
+    "mypy==1.13.0",
+    "transformers==4.57.6",
+    "tokenizers==0.22.2",
+    "python-docx==1.2.0",
+    "pillow==12.3.0",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.uv]
+# --- 1. Pin exact versions ---
+# All runtime and dev dependencies above use "==". `resolution = "highest"`
+# (the default) picks the newest version satisfying that pin at lock time;
+# since the pin is exact, there is only ever one candidate. The real
+# guarantee of reproducibility is uv.lock (see point 3) — the exact pins
+# here are the *policy* (reviewers must bump versions explicitly), the lock
+# file is the *enforcement* (byte-for-byte identical resolution everywhere).
+resolution = "highest"
+
+# --- 2. Refuse "fresh" releases ---
+# Two independent protections, both aimed at "don't silently pull in a
+# release the community hasn't had time to vet yet":
+#   a) prerelease = "disallow" -> never resolve alpha/beta/rc versions,
+#      even if a dependency's own constraint would otherwise allow one.
+#   b) exclude-newer -> a rolling 7-day supply-chain cooldown. uv ignores
+#      any package version published within the last 7 days. Malicious or
+#      broken releases are typically caught and yanked within hours to a
+#      few days (see the 2024-2025 npm/PyPI supply-chain incidents), so
+#      this window means a compromised release is very unlikely to still
+#      be live by the time it ages out of the cooldown and becomes
+#      resolvable. This is a rolling window (re-evaluated on `uv lock
+#      --upgrade`), not a fixed date — it does not go stale.
+prerelease = "disallow"
+exclude-newer = "7 days"
+
+# Escape hatch for a genuine emergency (e.g. a CVE patch drops today and you
+# cannot wait 7 days): override cooldown for one package only, don't lower
+# the global window.
+# exclude-newer-package = { some-package = false }
+
+default-groups = ["dev"]

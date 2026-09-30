@@ -1,0 +1,61 @@
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+secrets/
+*.pem
+*.key
+*.crt
+
+# Python Caches & Virtual Environments
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+hf_cache/
+transformers_cache/
+.coverage
+htmlcov/
+
+# Local Storage & Uploads (Data)
+data/
+uploads/
+*.sqlite
+*.sqlite3
+*.db
+
+# Machine Learning Models & Large Weights
+models/
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.onnx
+*.h5
+*.ckpt
+*.tflite
+*.gguf
+*.pb
+*.model
+*.engine
+
+# Large Datasets & Media
+*.parquet
+*.feather
+*.tar
+*.tar.gz
+*.zip
+*.7z
+
+# Logs & OS Files
+*.log
+.DS_Store
+Thumbs.db
+

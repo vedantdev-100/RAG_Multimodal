@@ -1,0 +1,42 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file: .env
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./secrets:/code/secrets:ro
+      # LOCAL_STORAGE_DIR (LocalFileStorage) — persists uploaded raw files
+      # across container restarts. Swap for S3/GCS-backed storage before
+      # running more than one app replica; a local volume isn't shared
+      # between pods.
+      - uploads:/code/data/uploads
+      # MODELS_DIR — populate once with:
+      #   docker compose run --rm app uv run python -m app.cli.download_models
+      # then every later `up` reuses this volume; no internet access is
+      # needed at request time.
+      - models:/code/models
+
+  db:
+    image: pgvector/pgvector:pg16  # postgres:16 + pgvector extension preinstalled
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ai_platform
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:
+  uploads:
+  models:
