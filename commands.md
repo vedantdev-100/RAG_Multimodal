@@ -44,3 +44,6 @@ curl http://localhost:8000/health
 uv run python -m app.cli.create_superuser
 *** or non-interactive:
 uv run python -m app.cli.create_superuser --email admin@example.com --password "AdminPass123!"
+
+# Download Models
+uv run python -m app.cli.download_models --force
